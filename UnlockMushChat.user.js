@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         Unlock Mush Chat
 // @namespace    http://mush.vg/
-// @version      0.1
+// @version      0.2
 // @description  Unlock Mush Chat 
 // @author       BonbonsDealer
+// @downloadURL https://raw.githubusercontent.com/Bonbons/Unlock-Mush-Chat/master/UnlockMushChat.user.js
 // @match        http://mush.vg/*
 // @match        http://mush.twinoid.com/*
 // @require        http://code.jquery.com/jquery-1.9.1.js
