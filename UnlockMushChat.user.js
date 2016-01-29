@@ -407,7 +407,7 @@ function searchAjax() {
 			$('img[class*="recent"]', data).each(function(_i, _e) {
 				tot_unread+=1;            
 			});
-			GM_getValue(window.location.host+'_lastNbUnread',tot_unread);
+			GM_setValue(window.location.host+'_lastNbUnread',tot_unread);
 			console.log("count:",tot_unread); 
 			if (tot_unread==0) {
 				console.log("No unread message...",checking);  
