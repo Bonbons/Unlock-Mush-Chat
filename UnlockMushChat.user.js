@@ -129,9 +129,6 @@ var checking = GM_getValue(window.location.host+'_checking',false);
 var joining = GM_getValue(window.location.host+'_joining',false);
 var unreading = GM_getValue(window.location.host+'_unreading',false);
 var timer;
-var timerChecking;
-var timerJoining;
-var timer;
 var mCoinSound = new Audio("https://dl.dropbox.com/u/7079101/coin.mp3");
 var mClickSound = new Audio("http://soundbible.com/grab.php?id=1705&type=mp3");
 var persList = {
@@ -406,9 +403,11 @@ function searchAjax() {
 		unreading=GM_getValue(window.location.host+'_unreading',false);
 		if (unreading||unreading=='true') {
 			var tot_unread=0;
+			var lastNbUnread = GM_getValue(window.location.host+'_lastNbUnread',0);
 			$('img[class*="recent"]', data).each(function(_i, _e) {
 				tot_unread+=1;            
-			});  
+			});
+			GM_getValue(window.location.host+'_lastNbUnread',tot_unread);
 			console.log("count:",tot_unread); 
 			if (tot_unread==0) {
 				console.log("No unread message...",checking);  
@@ -437,7 +436,11 @@ function searchAjax() {
 					myWindow.focus();
 				}
 				window.clearTimeout(timer);
-				timer=window.setTimeout(searchAjax,20*1000);
+				if (lastNbUnread < tot_unread) {
+					timer=window.setTimeout(reloading,2*1000);
+				} else {
+					timer=window.setTimeout(searchAjax,20*1000);
+				}
 			}
 		}
 		checking = GM_getValue(window.location.host+'_checking',false);
