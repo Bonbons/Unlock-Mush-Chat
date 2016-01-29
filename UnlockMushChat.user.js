@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unlock Mush Chat
 // @namespace    http://mush.vg/
-// @version      0.2
+// @version      0.3
 // @description  Unlock Mush Chat 
 // @author       BonbonsDealer
 // @downloadURL https://raw.githubusercontent.com/Bonbons/Unlock-Mush-Chat/master/UnlockMushChat.user.js
@@ -25,6 +25,30 @@
 /*function drawAstropadHelp() {
     $('.talks').css("z-index", "0");
 }*/
+/*console.log("unsafeWindow.haxe ",unsafeWindow.haxe);
+var oldFunction = unsafeWindow.Main.chooseSkill;
+unsafeWindow.Main.chooseSkill = function (jq) {
+	if(Main.choosingSkills) return;
+    console.log("Main.choosingSkills ",Main.choosingSkills);
+    console.log("jq ",jq);
+    console.log("unsafeWindow.Tools ",unsafeWindow.Tools);
+	unsafeWindow.Tools.ping("/ws",function(resp) {
+		var skills = haxe.Unserializer.run(resp);
+		var dial = new js.JQuery(".cdSkillBox").clone().removeClass("cdTpl");
+		var rep = JqEx.ok(dial).find(".cdSkillRep");
+		var _g = 0;
+		while(_g < skills.length) {
+			var i = skills[_g];
+			++_g;
+			var jq1 = Main.j(new Tag("li").content(new Tag("img").attr("src",i.img).attr("onclick","Main.validateSkill( $(this), " + i.id + ");return false;").toString()).toString());
+			JqEx.tip(jq1,i.name,i.desc);
+			rep.append(jq1);
+		}
+		new js.JQuery("#floating_ui_start").prepend(dial);
+	});
+	Main.choosingSkills = true;
+}*/
+console.log("Main ",unsafeWindow.Main);
 
 var unlockingG = GM_getValue(window.location.host+'_unlockingG',false);	
 if (unlockingG||unlockingG=='true') {
@@ -100,11 +124,13 @@ function openWin(text) {
 	}
 }
 
-
 console.log("window.location.host ",window.location.host);  
 var checking = GM_getValue(window.location.host+'_checking',false);
 var joining = GM_getValue(window.location.host+'_joining',false);
 var unreading = GM_getValue(window.location.host+'_unreading',false);
+var timer;
+var timerChecking;
+var timerJoining;
 var timer;
 var mCoinSound = new Audio("https://dl.dropbox.com/u/7079101/coin.mp3");
 var mClickSound = new Audio("http://soundbible.com/grab.php?id=1705&type=mp3");
@@ -202,39 +228,8 @@ function stopCheckCompleteCrew() {
 
 function checkCompleteCrew() {
     GM_setValue(window.location.host+'_checking',true);
-    try {
-        var _people=$('ul[class="people"]');    
-        if (_people.length>0) {	
-			
-			var _cryo=$('img[src*="p_cryo.png"]');
-			
-			console.log("Check complete crew",_cryo);    
-			if (_cryo.length>0) {
-				console.log("Still crew in cryo...",checking);  
-				document.title = "Still crew in cryo...";
-				window.clearTimeout(timer);
-				_people=null;
-				_cryo=null;
-				timer=window.setTimeout(reloading,30*1000);
-			} else {
-				openWin("Complete Crew!!!");
-				console.log("Complete Crew!!!",checking);  
-				document.title = "Complete Crew!!!";
-				mCoinSound.play();
-				if (!myWindow) {
-					console.log("myWindow was never opened",checking); 
-				} else {
-					myWindow.focus();
-				}
-				window.clearTimeout(timer);
-				_people=null;
-				_cryo=null;
-				timer=window.setTimeout(reloading,20*1000);
-			}
-		}
-    } catch (e) {
-        console.error("Error checkCompleteCrew",e);        
-    }
+    window.clearTimeout(timer);
+	timer=window.setTimeout(searchAjax,1000);
 }
 
 function reloading() {
@@ -368,36 +363,136 @@ function stopCheckUnread() {
 }
 function checkUnread() {
     GM_setValue(window.location.host+'_unreading',true);
-    try {
-        var tot_unread=0;
-        $('span[class*="cdNbNotRead"]').each(function(_i, _e) {
-            var nb_tab=eval($(_e).text());
-            console.log("count:",_i,nb_tab); 
-            tot_unread+=nb_tab;            
-        });  
-		if (tot_unread==0) {
-			console.log("No unread message...",checking);  
-			document.title = "No unread message...";
-			window.clearTimeout(timer);
-			_people=null;
-			_cryo=null;
-			timer=window.setTimeout(reloading,30*1000);
-		} else {
-			openWin(tot_unread+" unread message!!!");
-			console.log(tot_unread+" unread message!!!",tot_unread);  
-			document.title = "Unread Message!!!";
-			mCoinSound.play();
-			if (!myWindow) {
-				console.log("myWindow was never opened",checking); 
-			} else {
-					myWindow.focus();
-			}
-			window.clearTimeout(timer);
-			_people=null;
-			_cryo=null;
-			timer=window.setTimeout(reloading,20*1000);
-		}
-    } catch (e) {
-        console.error("Error checkUnread",e);        
-    }
+    window.clearTimeout(timer);
+	timer=window.setTimeout(searchAjax,1000);
 }
+
+	
+function myAjax(page, params, cbError, cbSuccess) {
+	try {
+
+		params = {};
+		//params.ajax = 1;
+
+		$.ajax({
+			url : page,
+			type : 'GET',
+			data : params,
+			error : function (XMLHttpRequest, textStatus, errorThrown) {
+				cbError(XMLHttpRequest, textStatus, errorThrown);
+			},
+
+			success : function (data, textStatus, XMLHttpRequest) {
+				console.log(2, "ajax", [data, textStatus, XMLHttpRequest]);
+				cbSuccess(data, textStatus, XMLHttpRequest);
+			}
+		});
+
+		return true;
+	} catch (err) {
+		console.error("ERROR in myAjax: " + err.stack);
+		return false;
+	}
+};
+
+function searchAjax() {	
+	
+	function onError() {
+		console.log("Unable to use ajax");
+		timer=window.setTimeout(searchAjax,20*1000);
+	}
+
+	function onSuccess(data) {
+		unreading=GM_getValue(window.location.host+'_unreading',false);
+		if (unreading||unreading=='true') {
+			var tot_unread=0;
+			$('img[class*="recent"]', data).each(function(_i, _e) {
+				tot_unread+=1;            
+			});  
+			console.log("count:",tot_unread); 
+			if (tot_unread==0) {
+				console.log("No unread message...",checking);  
+				document.title = "No unread message...";
+				if (myWindow) {
+					myWindow.close();
+				}
+				window.clearTimeout(timer);
+				timer=window.setTimeout(searchAjax,30*1000);
+			} else {
+				var d = new Date();
+				var n = d.toTimeString();
+				var message = n+": "+tot_unread+" unread message!!!"
+				if (!myWindow) {
+					openWin(message);
+					console.log(message,tot_unread);  
+					document.title = "Unread Message!!!";
+					mCoinSound.play();
+					if (!myWindow) {
+						console.log("myWindow was never opened",checking); 
+					} else {
+							myWindow.focus();
+					}
+				} else {
+					myWindow.document.write("<p>"+message+"</p>");
+					myWindow.focus();
+				}
+				window.clearTimeout(timer);
+				timer=window.setTimeout(searchAjax,20*1000);
+			}
+		}
+		checking = GM_getValue(window.location.host+'_checking',false);
+		if (checking||checking=='true') {
+			try {
+				var _people=$('ul[class="people"]', data);    
+				if (_people.length>0) {	
+					
+					var _cryo=$('img[src*="p_cryo.png"]', data);
+					
+					//console.log("Check complete crew",_cryo);    
+					if (_cryo.length>0) {
+						console.log("Still crew in cryo...",checking);  
+						document.title = "Still crew in cryo...";
+						window.clearTimeout(timer);
+						_people=null;
+						_cryo=null;
+						timer=window.setTimeout(searchAjax,30*1000);
+					} else {
+						var d = new Date();
+						var n = d.toTimeString();
+						var message = n+": Complete Crew!!!"
+						if (!myWindow) {
+							openWin(message);
+							console.log(message,checking);  
+							document.title = "Complete Crew!!!";
+							mCoinSound.play();
+							if (!myWindow) {
+								console.log("myWindow was never opened",checking); 
+							} else {
+								myWindow.focus();
+							}
+						} else {
+							myWindow.document.write("<p>"+message+"</p>");
+							myWindow.focus();
+						}
+						window.clearTimeout(timer);
+						_people=null;
+						_cryo=null;
+						timer=window.setTimeout(searchAjax,20*1000);
+					}
+				}
+			} catch (e) {
+				console.error("Error checkCompleteCrew",e);        
+			}
+		}
+	}
+	
+	try {
+		var params = {};
+		myAjax('#', params, onError, onSuccess);
+		return true;
+	} catch (err) {
+		console.error("ERROR in searchAjax : "+err);
+		timer=window.setTimeout(searchAjax,20*1000);
+		return false;
+	}
+};
