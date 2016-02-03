@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unlock Mush Chat
 // @namespace    http://mush.vg/
-// @version      0.3
+// @version      0.4
 // @description  Unlock Mush Chat 
 // @author       BonbonsDealer
 // @downloadURL https://raw.githubusercontent.com/Bonbons/Unlock-Mush-Chat/master/UnlockMushChat.user.js
@@ -117,10 +117,22 @@ function openWin(text) {
     myWindow = window.open("", "", "width=400 ,height=200");
 	console.log("myWindow ",myWindow); 
 	if (myWindow) {
-		myWindow.document.write("<p>"+text+"</p>");
+		myWindow.document.write("<html><head><script language='javascript'>function changeparent(){try{console.log('test');window.opener.external.comeback(this);}catch(e){var back = confirm(e);if(back) {_child.close();}}}</script></head><body>");
+		myWindow.document.write("<form><input type=button onclick='javascript:changeparent()' value='Main'></form>");
+		myWindow.document.write("<p id='textinfo' onclick='javascript:this.opener.focus()' >"+text+"</p>");
+		myWindow.document.write("</body></html>");
 		myWindow.document.title = text;
 	} else {
 		console.log("POPUP is blocked",myWindow); 
+	}
+}
+window.external.comeback = function(_child) {
+	var back = confirm('Are you sure you want to comback?');
+	if(back) {
+		_child.close();
+		myWindow=null;
+	} else {
+		_child.focus();
 	}
 }
 
@@ -432,7 +444,7 @@ function searchAjax() {
 							myWindow.focus();
 					}
 				} else {
-					myWindow.document.write("<p>"+message+"</p>");
+					myWindow.document.getElementById('textinfo').innerHTML = message;
 					myWindow.focus();
 				}
 				window.clearTimeout(timer);
@@ -474,7 +486,7 @@ function searchAjax() {
 								myWindow.focus();
 							}
 						} else {
-							myWindow.document.write("<p>"+message+"</p>");
+							myWindow.document.getElementById('textinfo').innerHTML = message;
 							myWindow.focus();
 						}
 						window.clearTimeout(timer);
