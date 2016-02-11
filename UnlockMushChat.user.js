@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unlock Mush Chat
 // @namespace    http://mush.vg/
-// @version      0.4
+// @version      0.5
 // @description  Unlock Mush Chat 
 // @author       BonbonsDealer
 // @downloadURL https://raw.githubusercontent.com/Bonbons/Unlock-Mush-Chat/master/UnlockMushChat.user.js
@@ -404,6 +404,12 @@ function myAjax(page, params, cbError, cbSuccess) {
 	}
 };
 
+
+function refreshing(_id, _text ) {
+    console.log("Refreshing",_id,_text); 
+    $('#'+_id+'').html(_text);
+}
+
 function searchAjax() {	
 	
 	function onError() {
@@ -432,7 +438,7 @@ function searchAjax() {
 			} else {
 				var d = new Date();
 				var n = d.toTimeString();
-				var message = n+": "+tot_unread+" unread message!!!"
+				var message = n+": "+tot_unread+" unread message!!!";
 				if (!myWindow) {
 					openWin(message);
 					console.log(message,tot_unread);  
@@ -442,17 +448,29 @@ function searchAjax() {
 						console.log("myWindow was never opened",checking); 
 					} else {
 							myWindow.focus();
+							myWindow.alert(message);
 					}
 				} else {
 					myWindow.document.getElementById('textinfo').innerHTML = message;
 					myWindow.focus();
+					myWindow.alert(message);
 				}
 				window.clearTimeout(timer);
 				if (lastNbUnread < tot_unread) {
-					timer=window.setTimeout(reloading,2*1000);
-				} else {
-					timer=window.setTimeout(searchAjax,20*1000);
+					refreshing('topinfo_bar', $('#topinfo_bar', data).html() );
+					refreshing('chat_col', $('#chat_col', data).html() );
+					refreshing('cdInventory', $('#cdInventory', data).html() );
+					if ($('#research_module', data).length>0) {
+						refreshing('research_module', $('#research_module', data).html() );	
+					}
+					if ($('#cdModuleContent', data).length>0) {
+						refreshing('cdModuleContent', $('#cdModuleContent', data).html() );	
+					}
+					refreshing('char_col', $('#char_col', data).html() );
+					mCoinSound.play();
+					alert(message);
 				}
+				timer=window.setTimeout(searchAjax,20*1000);
 			}
 		}
 		checking = GM_getValue(window.location.host+'_checking',false);
@@ -484,10 +502,12 @@ function searchAjax() {
 								console.log("myWindow was never opened",checking); 
 							} else {
 								myWindow.focus();
+								myWindow.alert(message);
 							}
 						} else {
 							myWindow.document.getElementById('textinfo').innerHTML = message;
 							myWindow.focus();
+							myWindow.alert(message);
 						}
 						window.clearTimeout(timer);
 						_people=null;
