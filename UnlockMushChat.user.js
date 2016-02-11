@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unlock Mush Chat
 // @namespace    http://mush.vg/
-// @version      0.6
+// @version      0.7
 // @description  Unlock Mush Chat 
 // @author       BonbonsDealer
 // @downloadURL https://raw.githubusercontent.com/Bonbons/Unlock-Mush-Chat/master/UnlockMushChat.user.js
@@ -406,8 +406,20 @@ function myAjax(page, params, cbError, cbSuccess) {
 
 
 function refreshing(_id, _text ) {
-    console.log("Refreshing",_id,_text); 
     $('#'+_id+'').html(_text);
+}
+function refresh(data) {
+    console.log("refresh(data)"); 
+	refreshing('topinfo_bar', $('#topinfo_bar', data).html() );
+	refreshing('chat_col', $('#chat_col', data).html() );
+	refreshing('cdInventory', $('#cdInventory', data).html() );
+	if ($('#research_module', data).length>0) {
+		refreshing('research_module', $('#research_module', data).html() );	
+	}
+	if ($('#cdModuleContent', data).length>0) {
+		refreshing('cdModuleContent', $('#cdModuleContent', data).html() );	
+	}
+	refreshing('char_col', $('#char_col', data).html() );
 }
 
 function searchAjax() {	
@@ -418,6 +430,25 @@ function searchAjax() {
 	}
 
 	function onSuccess(data) {
+		var d = new Date();
+		var n = d.toTimeString();
+		var cycletime = $('p[class="cycletime"]').text().trim();
+		var last_nb_mush = GM_getValue(window.location.host+'_nb_mush',0);
+		var nb_mush = $('img[src*="p_mush.png"]', data).length;
+		console.log($('p[class="cycletime"]').text());
+		console.log("nb_mush",last_nb_mush,nb_mush);
+		GM_setValue(window.location.host+'_nb_mush',nb_mush);
+		if (last_nb_mush!=nb_mush){
+			window.clearTimeout(timer);
+			refresh(data);
+			mCoinSound.play();
+			var back = confirm(cycletime+" ("+n+"): "+tot_unread+" Mush number altered!!! ("+last_nb_mush+" to "+nb_mush+")");
+			if(back) {
+				mClickSound.play();			
+			}	
+			timer=window.setTimeout(searchAjax,30*1000);
+		}
+		
 		unreading=GM_getValue(window.location.host+'_unreading',false);
 		if (unreading||unreading=='true') {
 			var tot_unread=0;
@@ -436,21 +467,10 @@ function searchAjax() {
 				window.clearTimeout(timer);
 				timer=window.setTimeout(searchAjax,30*1000);
 			} else {
-				var d = new Date();
-				var n = d.toTimeString();
-				var message = n+": "+tot_unread+" unread message!!!";
+				var message = cycletime+" ("+n+"): "+tot_unread+" unread message!!!";
 				window.clearTimeout(timer);
 				if (lastNbUnread < tot_unread) {
-					refreshing('topinfo_bar', $('#topinfo_bar', data).html() );
-					refreshing('chat_col', $('#chat_col', data).html() );
-					refreshing('cdInventory', $('#cdInventory', data).html() );
-					if ($('#research_module', data).length>0) {
-						refreshing('research_module', $('#research_module', data).html() );	
-					}
-					if ($('#cdModuleContent', data).length>0) {
-						refreshing('cdModuleContent', $('#cdModuleContent', data).html() );	
-					}
-					refreshing('char_col', $('#char_col', data).html() );
+					refresh(data);
 					mCoinSound.play();
 					alert(message);
 				} else if (tot_unread>0) {
@@ -489,9 +509,7 @@ function searchAjax() {
 						_cryo=null;
 						timer=window.setTimeout(searchAjax,30*1000);
 					} else {
-						var d = new Date();
-						var n = d.toTimeString();
-						var message = n+": Complete Crew!!!"
+						var message = cycletime+" ("+n+"): Complete Crew!!!"
 						if (!myWindow) {
 							openWin(message);
 							console.log(message,checking);  
