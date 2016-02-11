@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unlock Mush Chat
 // @namespace    http://mush.vg/
-// @version      0.5
+// @version      0.6
 // @description  Unlock Mush Chat 
 // @author       BonbonsDealer
 // @downloadURL https://raw.githubusercontent.com/Bonbons/Unlock-Mush-Chat/master/UnlockMushChat.user.js
@@ -439,22 +439,6 @@ function searchAjax() {
 				var d = new Date();
 				var n = d.toTimeString();
 				var message = n+": "+tot_unread+" unread message!!!";
-				if (!myWindow) {
-					openWin(message);
-					console.log(message,tot_unread);  
-					document.title = "Unread Message!!!";
-					mCoinSound.play();
-					if (!myWindow) {
-						console.log("myWindow was never opened",checking); 
-					} else {
-							myWindow.focus();
-							myWindow.alert(message);
-					}
-				} else {
-					myWindow.document.getElementById('textinfo').innerHTML = message;
-					myWindow.focus();
-					myWindow.alert(message);
-				}
 				window.clearTimeout(timer);
 				if (lastNbUnread < tot_unread) {
 					refreshing('topinfo_bar', $('#topinfo_bar', data).html() );
@@ -469,6 +453,21 @@ function searchAjax() {
 					refreshing('char_col', $('#char_col', data).html() );
 					mCoinSound.play();
 					alert(message);
+				} else if (tot_unread>0) {
+					if (!myWindow) {
+						openWin(message);
+						console.log(message,tot_unread);  
+						document.title = "Unread Message!!!";
+						mCoinSound.play();
+						if (!myWindow) {
+							console.log("myWindow was never opened",checking); 
+						} else {
+								myWindow.focus();
+						}
+					} else {
+						myWindow.document.getElementById('textinfo').innerHTML = message;
+						myWindow.focus();
+					}
 				}
 				timer=window.setTimeout(searchAjax,20*1000);
 			}
