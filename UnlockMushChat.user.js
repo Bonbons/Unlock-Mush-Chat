@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unlock Mush Chat
 // @namespace    http://mush.vg/
-// @version      0.7
+// @version      0.8
 // @description  Unlock Mush Chat 
 // @author       BonbonsDealer
 // @downloadURL https://raw.githubusercontent.com/Bonbons/Unlock-Mush-Chat/master/UnlockMushChat.user.js
@@ -431,22 +431,30 @@ function searchAjax() {
 
 	function onSuccess(data) {
 		var d = new Date();
+		var d2 = new Date();
 		var n = d.toTimeString();
 		var cycletime = $('p[class="cycletime"]').text().trim();
-		var last_nb_mush = GM_getValue(window.location.host+'_nb_mush',0);
-		var nb_mush = $('img[src*="p_mush.png"]', data).length;
-		console.log($('p[class="cycletime"]').text());
-		console.log("nb_mush",last_nb_mush,nb_mush);
-		GM_setValue(window.location.host+'_nb_mush',nb_mush);
-		if (last_nb_mush!=nb_mush){
-			window.clearTimeout(timer);
-			refresh(data);
-			mCoinSound.play();
-			var back = confirm(cycletime+" ("+n+"): "+tot_unread+" Mush number altered!!! ("+last_nb_mush+" to "+nb_mush+")");
-			if(back) {
-				mClickSound.play();			
-			}	
-			timer=window.setTimeout(searchAjax,30*1000);
+		if ($('ul[class="people"]', data).length>0) {	
+			var last_nb_mush = GM_getValue(window.location.host+'_nb_mush',0);
+			var nb_mush = $('img[src*="p_mush.png"]', data).length;
+			console.log($('p[class="cycletime"]').text());
+			console.log("nb_mush",last_nb_mush,nb_mush);
+			GM_setValue(window.location.host+'_nb_mush',nb_mush);
+			if (last_nb_mush!=nb_mush){
+				window.clearTimeout(timer);
+				refresh(data);
+				mCoinSound.play();
+				var back = confirm(cycletime+" ("+n+"): "+tot_unread+" Mush number altered!!! ("+last_nb_mush+" to "+nb_mush+")");
+				if(back) {
+					mClickSound.play();	
+				}
+				d2 = new Date();
+				if (((d2-d)/1000)>60) {
+					timer=window.setTimeout(searchAjax,1);
+				} else {
+					timer=window.setTimeout(searchAjax,30*1000);
+				}
+			}
 		}
 		
 		unreading=GM_getValue(window.location.host+'_unreading',false);
@@ -469,11 +477,11 @@ function searchAjax() {
 			} else {
 				var message = cycletime+" ("+n+"): "+tot_unread+" unread message!!!";
 				window.clearTimeout(timer);
+				refresh(data);
 				if (lastNbUnread < tot_unread) {
-					refresh(data);
 					mCoinSound.play();
 					alert(message);
-				} else if (tot_unread>0) {
+				} else {
 					if (!myWindow) {
 						openWin(message);
 						console.log(message,tot_unread);  
