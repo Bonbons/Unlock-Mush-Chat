@@ -444,7 +444,7 @@ function searchAjax() {
 				window.clearTimeout(timer);
 				refresh(data);
 				mCoinSound.play();
-				var back = confirm(cycletime+" ("+n+"): "+tot_unread+" Mush number altered!!! ("+last_nb_mush+" to "+nb_mush+")");
+				var back = confirm(cycletime+" ("+n+"): Mush number altered!!! ("+last_nb_mush+" to "+nb_mush+")");
 				if(back) {
 					mClickSound.play();	
 				}
