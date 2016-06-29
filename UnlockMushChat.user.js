@@ -301,17 +301,17 @@ function stopJoinAs() {
 
 function beginJoinAs() {
     $("body").append('\
-                                	<div id="dialog-form" title="Choose character" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-draggable ui-resizable" tabindex="-1" role="dialog" aria-labelledby="ui-id-1" style="outline: 0px; z-index: 1004; position: absolute; height: auto; width: auto; top: 10%; left: 30%; display: block;">\
-                                	<div><button id="close_character" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></button></div>\
-                                	<form>\
-                                	<fieldset>\
-                                	<label for="name">Select a character</label><select name="character" id="character"></select>\
-                                	<button id="bt_character" type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"><span class="ui-button-text">Go!</span></button>\
-                                	<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
-                                	</fieldset>\
-                                	</form>\
-                                	</div>\                                                                  \
-                                	');
+                                        	<div id="dialog-form" title="Choose character" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-draggable ui-resizable" tabindex="-1" role="dialog" aria-labelledby="ui-id-1" style="outline: 0px; z-index: 1004; position: absolute; height: auto; width: auto; top: 10%; left: 30%; display: block;">\
+                                        	<div><button id="close_character" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></button></div>\
+                                        	<form>\
+                                        	<fieldset>\
+                                        	<label for="name">Select a character</label><select name="character" id="character"></select>\
+                                        	<button id="bt_character" type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"><span class="ui-button-text">Go!</span></button>\
+                                        	<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">\
+                                        	</fieldset>\
+                                        	</form>\
+                                        	</div>\                                                                  \
+                                        	');
     $('#character').css("color", "rgb(34, 75, 165)");
     $.each(persList, function (name, person) {
         console.log("#character", name, person);
@@ -471,7 +471,7 @@ function searchAjax() {
     function onSuccess(data) {
         try {
             var $data = $($.parseHTML(data));
-			var d = new Date();
+            var d = new Date();
             var d2 = new Date();
             var n = d.toTimeString();
             var cycletime = $('p.cycletime').text().trim();
