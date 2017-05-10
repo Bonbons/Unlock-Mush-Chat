@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Unlock Mush Chat
 // @namespace    http://mush.vg/
-// @version      1.0
+// @version      1.1
 // @description  Unlock Mush Chat
 // @author       BonbonsDealer
 // @downloadURL https://raw.githubusercontent.com/Bonbons/Unlock-Mush-Chat/master/UnlockMushChat.user.js
@@ -459,6 +459,20 @@ function refresh(data) {
         refreshing('#char_col', $('#char_col', data).html());
     }
     $("table.treereply tr.not_read.cdRepl").css("display", "table-row");
+
+    if (unlockingM || unlockingM == 'true') {
+		GM_registerMenuCommand("Stop Unlock Mush Chat", function () {
+			stopUnlockMushChat();
+		});
+		unlockMushChat();
+	}
+
+    if (unlockingG || unlockingG == 'true') {
+        GM_registerMenuCommand("Stop Unlock General Chat", function () {
+            stopUnlockGeneralChat();
+        });
+        unlockGeneralChat();
+    }
 }
 
 function searchAjax() {
